@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
-export function InsightsPage() {
+export function InsightsPage({loadedPosts}) {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -33,82 +33,21 @@ export function InsightsPage() {
     { value: 'remote-work', label: 'Remote Work' }
   ];
 
-  const featuredPost = {
-    id: 1,
-    title: 'The Future of Work: Top 10 Skills You Need in 2024',
-    excerpt: 'As the workplace continues to evolve, certain skills are becoming increasingly valuable. Discover which abilities will set you apart in the coming year.',
-    author: 'Sarah Johnson',
-    authorRole: 'Career Strategist',
-    publishDate: '2024-01-15',
-    readTime: '8 min read',
-    category: 'industry-trends',
-    tags: ['Future of Work', 'Skills', '2024 Trends'],
-    image: 'https://images.unsplash.com/photo-1695473507908-ff60e604c113?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxibG9nJTIwaW5zaWdodHMlMjBrbm93bGVkZ2UlMjBzaGFyaW5nfGVufDF8fHx8MTc1Nzc2NjAyMXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
-    featured: true
+  const featuredPost = loadedPosts.length > 0 ? loadedPosts[0] : {
+    id: 0,
+    title: 'No Featured Post',
+    body: '',
+    author: '',
+    authorRole: '',
+    publishDate: '',
+    readTime: '',
+    category: '',
+    tags: [],
+    image: 'https://cdn.pixabay.com/photo/2025/05/23/23/08/mountains-9618595_1280.jpg',
+    featured: false
   };
-
-  const blogPosts = [
-    {
-      id: 2,
-      title: 'How to Navigate a Career Transition Successfully',
-      excerpt: 'Changing careers can be daunting, but with the right strategy, it can be your path to greater fulfillment and success.',
-      author: 'Michael Chen',
-      authorRole: 'Career Coach',
-      publishDate: '2024-01-12',
-      readTime: '6 min read',
-      category: 'career-tips',
-      tags: ['Career Change', 'Strategy', 'Growth'],
-      image: 'https://images.unsplash.com/photo-1565688527174-775059ac429c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXJlZXIlMjBndWlkYW5jZSUyMHByb2Zlc3Npb25hbCUyMG1lZXRpbmd8ZW58MXx8fHwxNzU3NzY2MDE5fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
-    },
-    {
-      id: 3,
-      title: 'Remote Work Interview Tips: Standing Out in Virtual Interviews',
-      excerpt: 'Master the art of virtual interviews with these proven techniques for making a lasting impression.',
-      author: 'Emily Rodriguez',
-      authorRole: 'HR Director',
-      publishDate: '2024-01-10',
-      readTime: '5 min read',
-      category: 'interview-prep',
-      tags: ['Remote Work', 'Interviews', 'Virtual'],
-      image: 'https://images.unsplash.com/photo-1559523182-a284c3fb7cff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxqb2IlMjBpbnRlcnZpZXclMjBwcm9mZXNzaW9uYWx8ZW58MXx8fHwxNzU3NzY0NzQ4fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
-    },
-    {
-      id: 4,
-      title: 'Building Leadership Skills: From Individual Contributor to Manager',
-      excerpt: 'The transition from team member to team leader requires developing new skills and mindsets.',
-      author: 'David Park',
-      authorRole: 'Leadership Coach',
-      publishDate: '2024-01-08',
-      readTime: '7 min read',
-      category: 'leadership',
-      tags: ['Leadership', 'Management', 'Growth'],
-      image: 'https://images.unsplash.com/photo-1748346918817-0b1b6b2f9bab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBvZmZpY2UlMjB3b3Jrc3BhY2UlMjBjYXJlZXJ8ZW58MXx8fHwxNzU3NzY2MDIxfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
-    },
-    {
-      id: 5,
-      title: 'The Rise of AI in the Workplace: Adapting Your Skills',
-      excerpt: 'Artificial Intelligence is reshaping industries. Learn how to stay relevant and thrive alongside AI.',
-      author: 'Lisa Wong',
-      authorRole: 'Tech Industry Analyst',
-      publishDate: '2024-01-05',
-      readTime: '9 min read',
-      category: 'industry-trends',
-      tags: ['AI', 'Technology', 'Adaptation'],
-      image: 'https://images.unsplash.com/photo-1661577804141-6f0180f82373?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyb2FkbWFwJTIwcGxhbm5pbmclMjBzdHJhdGVneXxlbnwxfHx8fDE3NTc3NjYwMTl8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
-    },
-    {
-      id: 6,
-      title: 'Networking in the Digital Age: Building Meaningful Professional Connections',
-      excerpt: 'Discover effective strategies for building and maintaining professional relationships in our connected world.',
-      author: 'James Thompson',
-      authorRole: 'Networking Expert',
-      publishDate: '2024-01-03',
-      readTime: '6 min read',
-      category: 'career-tips',
-      tags: ['Networking', 'Professional Development', 'Relationships'],
-      image: 'https://images.unsplash.com/photo-1484069560501-87d72b0c3669?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmcmVxdWVudGx5JTIwYXNrZWQlMjBxdWVzdGlvbnMlMjBoZWxwfGVufDF8fHx8MTc1Nzc2NjAyMHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
-    }
-  ];
+  
+  let blogPosts = loadedPosts;
 
   const trendingTags = [
     'Career Growth', 'Remote Work', 'Leadership', 'AI & Technology', 'Interview Tips',
@@ -118,7 +57,7 @@ export function InsightsPage() {
   const filteredPosts = blogPosts.filter(post => {
     const matchesCategory = selectedCategory === 'all' || post.category === selectedCategory;
     const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         post.body.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          post.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesCategory && matchesSearch;
   });
@@ -211,7 +150,7 @@ export function InsightsPage() {
                   </h2>
                   
                   <p className="text-muted-foreground mb-4 leading-relaxed">
-                    {featuredPost.excerpt}
+                    {featuredPost.body}
                   </p>
                   
                   <div className="flex items-center justify-between">
@@ -220,7 +159,7 @@ export function InsightsPage() {
                         <User className="h-4 w-4 text-primary" />
                       </div>
                       <div>
-                        <p className="font-semibold text-sm">{featuredPost.author}</p>
+                        <p className="font-semibold text-sm">{featuredPost.createdBy}</p>
                         <p className="text-muted-foreground text-xs">{featuredPost.authorRole}</p>
                       </div>
                     </div>
@@ -295,7 +234,7 @@ export function InsightsPage() {
                   <CardHeader className="pb-3">
                     <div className="flex items-center space-x-2 text-sm text-muted-foreground mb-2">
                       <Calendar className="h-4 w-4" />
-                      <span>{new Date(post.publishDate).toLocaleDateString()}</span>
+                      <span>{new Date(post.createdAt).toLocaleDateString()}</span>
                       <span>•</span>
                       <Clock className="h-4 w-4" />
                       <span>{post.readTime}</span>
@@ -306,7 +245,7 @@ export function InsightsPage() {
                     </CardTitle>
                     
                     <CardDescription className="line-clamp-3">
-                      {post.excerpt}
+                      {post.body}
                     </CardDescription>
                   </CardHeader>
                   
@@ -317,8 +256,8 @@ export function InsightsPage() {
                           <User className="h-3 w-3 text-primary" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium">{post.author}</p>
-                          <p className="text-xs text-muted-foreground">{post.authorRole}</p>
+                          <p className="text-sm font-medium">{post.createdBy}</p>
+                          <p className="text-muted-foreground text-xs">{post.authorRole}</p>
                         </div>
                       </div>
                       

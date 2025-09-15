@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { 
-  Compass, 
-  Map, 
-  MessageSquare, 
-  HelpCircle, 
-  BookOpen, 
+import {
+  Compass,
+  Map,
+  MessageSquare,
+  HelpCircle,
+  BookOpen,
   ArrowRight,
   Star,
   Users,
@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
-export function LandingPage() {
+export function LandingPage({ user, Login, Logout }) {
   const features = [
     {
       icon: Compass,
@@ -80,26 +80,48 @@ export function LandingPage() {
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
             <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
-              Navigate Your Career
-              <br />
-              <span className="text-primary">With Confidence</span>
+              {user?(
+                <div>
+                  <p>Welcome,{user.displayName}</p>
+                </div>
+              ):
+              (
+                <>
+                Navigate Your Career
+                <br />
+                <span className="text-primary">With Confidence</span>
+                </>
+              )}
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Get personalized career guidance, create custom roadmaps, and ace your interviews 
+              Get personalized career guidance, create custom roadmaps, and ace your interviews
               with our comprehensive platform designed for ambitious professionals.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/career-guidance">
-                <Button size="lg" className="text-lg px-8 py-3">
-                  Start Your Journey
+              {user ? (
+                  <Button variant="outline" size="lg" className="text-lg px-8 py-3" onClick={Logout}>
+                  Logout
                   <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+              ):
+              (
+                <Button variant="outline" size="lg" className="text-lg px-8 py-3" onClick={Login}>
+                Login To Start Your Journey
+                <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-              </Link>
+              )
+              }
+              {/* <Link to="/career-guidance">
+              <Button variant="outline" size="lg" className="text-lg px-8 py-3" onClick={Login}>
+                Login To Start Your Journey
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+              
               <Link to="/about">
                 <Button variant="outline" size="lg" className="text-lg px-8 py-3">
                   Learn More
                 </Button>
-              </Link>
+              */}
             </div>
           </motion.div>
 
@@ -160,7 +182,7 @@ export function LandingPage() {
               Everything You Need to Succeed
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Our comprehensive platform provides all the tools and guidance you need 
+              Our comprehensive platform provides all the tools and guidance you need
               to advance your career and achieve your professional goals.
             </p>
           </motion.div>
@@ -220,7 +242,7 @@ export function LandingPage() {
               Ready to Transform Your Career?
             </h2>
             <p className="text-xl mb-8 max-w-2xl mx-auto opacity-90">
-              Join thousands of professionals who have already taken control of their career journey 
+              Join thousands of professionals who have already taken control of their career journey
               with CareerCompass.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
