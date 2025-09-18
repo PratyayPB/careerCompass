@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Menu, X } from 'lucide-react';
+import { LogOut, Menu, X } from 'lucide-react';
 import { Button } from './ui/button';
 
-export function Header() {
+export function Header({loggedIn}) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
@@ -66,14 +66,27 @@ export function Header() {
                 About
               </Button>
             </Link>
-            <Link to="/contact">
+            {loggedIn?
+            (
+              <Button 
+              size="sm"
+              className="bg-gray-900 hover:bg-gray-800 text-white font-medium px-6 py-2 rounded-lg"
+              onClick={LogOut}
+              >
+              Logout
+            </Button>
+            ):
+            (
+              <Link to="/contact">
               <Button 
                 size="sm"
                 className="bg-gray-900 hover:bg-gray-800 text-white font-medium px-6 py-2 rounded-lg"
-              >
+                >
                 Get Started Free
               </Button>
-            </Link>
+              </Link>
+            )}
+            
           </div>
 
           {/* Mobile Menu Button */}

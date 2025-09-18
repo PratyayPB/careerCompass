@@ -47,7 +47,7 @@ export default function App() {
         <main className="flex-1">
           <Routes>
             <Route path="/" element={<LandingPage user={user} Login={Login} Logout={Logout}/>} />
-            <Route path="/career-guidance" element={<CareerGuidancePage />} />
+            <Route path="/career-guidance" element={<CareerGuidancePage user={user} />} />
             <Route path="/roadmap-generator" element={<RoadmapGeneratorPage />} />
             <Route path="/interview-prep" element={<InterviewPage />} />
             <Route path="/faq" element={<FAQPage />} />
