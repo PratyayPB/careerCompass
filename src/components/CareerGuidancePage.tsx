@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
+import { Link } from 'react-router-dom';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Input } from './ui/input';
@@ -7,19 +8,23 @@ import { Label } from './ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Textarea } from './ui/textarea';
 import { Badge } from './ui/badge';
-import { 
-  User, 
-  BrainCircuit, 
-  Target, 
-  TrendingUp, 
+import {
+  User,
+  BrainCircuit,
+  Target,
+  TrendingUp,
   Clock,
   CheckCircle,
   ArrowRight,
   Star
 } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-
-export function CareerGuidancePage() {
+import getGuide from '../firebase/career-guide';
+type CareerGuidancePage =
+  {
+    guidance: string;
+  }
+export function CareerGuidancePage({ user }) {
   const [formData, setFormData] = useState({
     name: '',
     experience: '',
@@ -29,6 +34,14 @@ export function CareerGuidancePage() {
     challenges: ''
   });
 
+  const [loading, setLoading] = useState(false);
+  const [guidance, setGuidance] = useState<string | null>("");
+  const [responded, setResponded] = useState(false);
+  const lines = guidance!
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .map((l) => l.replace(/\*\*/g, ""));
   const guidanceAreas = [
     {
       icon: Target,
@@ -100,7 +113,7 @@ export function CareerGuidancePage() {
                 <span className="text-primary"> Your Success</span>
               </h1>
               <p className="text-xl text-muted-foreground mb-8">
-                Get personalized career advice from industry experts who understand your field. 
+                Get personalized career advice from industry experts who understand your field.
                 Our comprehensive guidance helps you navigate career challenges and accelerate your professional growth.
               </p>
               <div className="flex flex-wrap gap-2 mb-8">
@@ -130,8 +143,191 @@ export function CareerGuidancePage() {
         </div>
       </section>
 
+      {/* Assessment Form */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto max-w-2xl">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Get Your Personalized Assessment
+            </h2>
+            <p className="text-xl text-muted-foreground">
+              Tell us about yourself and we'll provide tailored career guidance recommendations.
+            </p>
+          </motion.div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Career Assessment Form</CardTitle>
+              <CardDescription>
+                This information helps us provide more personalized guidance for your career journey.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Full Name</Label>
+                  <Input
+                    required
+                    disabled={loading}
+                    id="name"
+                    placeholder="Enter your full name"
+                    value={formData.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="experience">Years of Experience</Label>
+                  <Select required disabled={loading} value={formData.experience} onValueChange={(value) => handleInputChange('experience', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select experience level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0-2">0-2 years</SelectItem>
+                      <SelectItem value="3-5">3-5 years</SelectItem>
+                      <SelectItem value="6-10">6-10 years</SelectItem>
+                      <SelectItem value="10+">10+ years</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="currentRole">Current Role</Label>
+                <Input
+                required
+                  disabled={loading}
+                  id="currentRole"
+                  placeholder="e.g., Software Developer, Marketing Manager"
+                  value={formData.currentRole}
+                  onChange={(e) => handleInputChange('currentRole', e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="industry">Industry</Label>
+                <Select required disabled={loading} value={formData.industry} onValueChange={(value) => handleInputChange('industry', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your industry" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="technology">Technology</SelectItem>
+                    <SelectItem value="finance">Finance</SelectItem>
+                    <SelectItem value="healthcare">Healthcare</SelectItem>
+                    <SelectItem value="marketing">Marketing</SelectItem>
+                    <SelectItem value="education">Education</SelectItem>
+                    <SelectItem value="consulting">Consulting</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="goals">Career Goals</Label>
+                <Textarea
+                required
+                  disabled={loading}
+                  id="goals"
+                  placeholder="Describe your short-term and long-term career goals..."
+                  value={formData.goals}
+                  onChange={(e) => handleInputChange('goals', e.target.value)}
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="challenges">Current Challenges</Label>
+                <Textarea
+                required
+                  disabled={loading}
+                  id="challenges"
+                  placeholder="What career challenges are you facing? What would you like help with?"
+                  value={formData.challenges}
+                  onChange={(e) => handleInputChange('challenges', e.target.value)}
+                  rows={3}
+                />
+              </div>
+              {
+                user ?
+                  (
+                    <Button variant="outline" className="w-full" size="lg" disabled={loading}
+                      onClick={() => {
+                        setLoading(true);
+                        getGuide(formData).then(
+                          (text) => {
+                            setGuidance(text);
+                            setLoading(false);
+                            setResponded(true);
+                          });
+                      }}>
+                      {loading ? "Generating Guidance..." : "Get My Personalized Guidance"}
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  ) :
+                  (
+                    <Link to="/">
+                      <Button variant="outline" className="w-full" size="lg">
+                        Create Account or Login!
+                        <ArrowRight className="ml-2 h-5 w-5" />
+                      </Button>
+                    </Link>
+                  )
+              }
+
+            </CardContent>
+          </Card>
+
+          <Card hidden={!responded}>
+            <CardHeader>
+              <CardTitle>Career Guidence</CardTitle>
+              <CardDescription>
+                Here's your personalized guidance for your career journey.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4 text-left">
+                {
+                  lines.map((line, index) => {
+                    // Heading for numbered sections
+                    if (/^\d\./.test(line)) {
+                      return (
+                        <h3
+                          key={index}
+                          className="font-semibold text-lg text-foreground mt-4"
+                        >
+                          {line}
+                        </h3>
+                      );
+                    }
+
+                    // Bullet points
+                    if (/^[-•]/.test(line)) {
+                      return (
+                        <li key={index} className="ml-6 list-disc text-muted-foreground">
+                          {line.replace(/^[-•]\s*/, "")}
+                        </li>
+                      );
+                    }
+
+                    // Normal paragraph
+                    return (
+                      <p key={index} className="text-muted-foreground">
+                        {line}
+                      </p>
+                    );
+                  })}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
       {/* Guidance Areas */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/30">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/30" hidden>
         <div className="container mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -183,117 +379,6 @@ export function CareerGuidancePage() {
               </motion.div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Assessment Form */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
-        <div className="container mx-auto max-w-2xl">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Get Your Personalized Assessment
-            </h2>
-            <p className="text-xl text-muted-foreground">
-              Tell us about yourself and we'll provide tailored career guidance recommendations.
-            </p>
-          </motion.div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Career Assessment Form</CardTitle>
-              <CardDescription>
-                This information helps us provide more personalized guidance for your career journey.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input
-                    id="name"
-                    placeholder="Enter your full name"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="experience">Years of Experience</Label>
-                  <Select value={formData.experience} onValueChange={(value) => handleInputChange('experience', value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select experience level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="0-2">0-2 years</SelectItem>
-                      <SelectItem value="3-5">3-5 years</SelectItem>
-                      <SelectItem value="6-10">6-10 years</SelectItem>
-                      <SelectItem value="10+">10+ years</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="currentRole">Current Role</Label>
-                <Input
-                  id="currentRole"
-                  placeholder="e.g., Software Developer, Marketing Manager"
-                  value={formData.currentRole}
-                  onChange={(e) => handleInputChange('currentRole', e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="industry">Industry</Label>
-                <Select value={formData.industry} onValueChange={(value) => handleInputChange('industry', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your industry" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="technology">Technology</SelectItem>
-                    <SelectItem value="finance">Finance</SelectItem>
-                    <SelectItem value="healthcare">Healthcare</SelectItem>
-                    <SelectItem value="marketing">Marketing</SelectItem>
-                    <SelectItem value="education">Education</SelectItem>
-                    <SelectItem value="consulting">Consulting</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="goals">Career Goals</Label>
-                <Textarea
-                  id="goals"
-                  placeholder="Describe your short-term and long-term career goals..."
-                  value={formData.goals}
-                  onChange={(e) => handleInputChange('goals', e.target.value)}
-                  rows={3}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="challenges">Current Challenges</Label>
-                <Textarea
-                  id="challenges"
-                  placeholder="What career challenges are you facing? What would you like help with?"
-                  value={formData.challenges}
-                  onChange={(e) => handleInputChange('challenges', e.target.value)}
-                  rows={3}
-                />
-              </div>
-
-              <Button className="w-full" size="lg">
-                Get My Personalized Guidance
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </CardContent>
-          </Card>
         </div>
       </section>
 
